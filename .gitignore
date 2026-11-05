@@ -3,3 +3,5 @@ src-tauri/target/
 dist/
 icon-source.html
 app.log
+ci-out/
+app.log
