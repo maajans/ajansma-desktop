@@ -1,0 +1,9 @@
+{
+  "name": "ajansma-desktop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mezopotamya Ajansı — Haber Merkezi masaüstü uygulaması",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
