@@ -5,3 +5,5 @@ icon-source.html
 app.log
 ci-out/
 app.log
+ci-macos.log
+ci*.log
