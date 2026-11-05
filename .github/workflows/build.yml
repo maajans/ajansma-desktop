@@ -28,13 +28,17 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npx tauri build --target universal-apple-darwin
-      - name: İmza ve bilet doğrulaması
+      - name: İmza ve bilet doğrulaması (DMG içindeki uygulama)
         run: |
-          APP="src-tauri/target/universal-apple-darwin/release/bundle/macos/MA Haber Merkezi.app"
+          DMG=$(ls src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)
+          MNT=$(hdiutil attach "$DMG" -nobrowse -readonly | tail -1 | awk '{print $NF}')
+          echo "bağlandı: $MNT"
+          APP="$MNT/MA Haber Merkezi.app"
+          codesign -dv --verbose=4 "$APP" 2>&1 | grep -E "Authority|TeamIdentifier|flags" || exit 1
           codesign --verify --deep --strict --verbose=2 "$APP" || exit 1
-          codesign -dv --verbose=4 "$APP" 2>&1 | grep -E "Authority|TeamIdentifier|flags"
           xcrun stapler validate "$APP" && echo "bilet yapıştırıldı"
-          spctl -a -vvv -t install "$APP" || true
+          spctl -a -vvv -t exec "$APP" || true
+          hdiutil detach "$MNT" -quiet || true
       - uses: actions/upload-artifact@v4
         with:
           name: macos-dmg
