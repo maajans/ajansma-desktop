@@ -7,7 +7,7 @@ on:
 
 jobs:
   macos:
-    name: macOS (universal)
+    name: macOS (universal, imzalı + notarize)
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
@@ -19,12 +19,22 @@ jobs:
       - uses: swatinem/rust-cache@v2
         with: { workspaces: 'src-tauri -> target' }
       - run: npm install
-      - name: Derle (Intel + Apple Silicon)
+      - name: Derle · imzala · notarize et
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npx tauri build --target universal-apple-darwin
-      - name: Geçici imza (ad-hoc)
+      - name: İmza ve bilet doğrulaması
         run: |
           APP="src-tauri/target/universal-apple-darwin/release/bundle/macos/MA Haber Merkezi.app"
-          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP" || exit 1
+          codesign -dv --verbose=4 "$APP" 2>&1 | grep -E "Authority|TeamIdentifier|flags"
+          xcrun stapler validate "$APP" && echo "bilet yapıştırıldı"
+          spctl -a -vvv -t install "$APP" || true
       - uses: actions/upload-artifact@v4
         with:
           name: macos-dmg

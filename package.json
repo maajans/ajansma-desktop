@@ -5,5 +5,9 @@
   "description": "Mezopotamya Ajansı — Haber Merkezi masaüstü uygulaması",
   "devDependencies": {
     "@tauri-apps/cli": "^2"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "libsodium-wrappers": "^0.8.4"
   }
 }
