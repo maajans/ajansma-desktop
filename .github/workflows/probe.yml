@@ -1,0 +1,12 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  m14:
+    runs-on: macos-14
+    steps: [{run: 'uname -a'}]
+  mlatest:
+    runs-on: macos-latest
+    steps: [{run: 'uname -a'}]
+  lin:
+    runs-on: ubuntu-latest
+    steps: [{run: 'uname -a'}]
